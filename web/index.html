@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Librairie Anssem — Jamel v1</title>
+  <style>
+    :root {
+      --bg:#f4f5f1;--card:#fff;--ink:#14202b;--muted:#68737e;--line:#e2e6e7;
+      --nav:#102b38;--nav2:#1d4658;--green:#1b805d;--green-dark:#126448;
+      --green-soft:#e8f5ef;--accent-ink:#fff;--amber:#a9690e;--amber-soft:#fff3df;--red:#b84545;
+      --red-soft:#fff0f0;--blue-soft:#eaf1f6;--shadow:0 10px 28px rgba(20,32,43,.07)
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;font-family:"Segoe UI",Inter,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+    button,input,select{font:inherit}
+    button,a{-webkit-tap-highlight-color:transparent}
+    button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(27,128,93,.22);outline-offset:2px}
+    .hidden{display:none!important}
+    .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+    .side{background:var(--nav);color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh;min-width:0;overflow:hidden}
+    .brand-wrap{padding:0 8px 24px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+    .brand-row{display:flex;align-items:center;gap:9px}
+    .side-logo{width:38px;height:38px;border-radius:9px;background:#fff;object-fit:contain;padding:2px;flex:none}
+    .brand{font-size:23px;font-weight:850;letter-spacing:-.3px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .version{font-size:11px;font-weight:800;background:#2b896b;color:#fff;padding:3px 7px;border-radius:99px}
+    .sub{font-size:12px;color:#b9cbd3;margin-top:5px}
+    .nav{display:flex;flex-direction:column;gap:5px;min-width:0}
+    .nav button{width:100%;border:0;background:transparent;color:#dce8ec;text-align:left;padding:12px 13px;border-radius:11px;cursor:pointer;display:flex;align-items:center;gap:11px;font-weight:600;min-height:46px}
+    .nav button:hover{background:rgba(255,255,255,.07)}
+    .nav button.active{background:var(--nav2);color:#fff;box-shadow:inset 3px 0 0 #54b693}
+    .nav-icon{width:23px;height:23px;border:1px solid rgba(255,255,255,.28);border-radius:7px;display:inline-grid;place-items:center;font-size:12px;flex:0 0 auto}
+    .main{padding:24px 28px 36px;min-width:0}
+    .content{width:100%;max-width:1580px;margin:0 auto;min-width:0}
+    .top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:20px}
+    .top h1{font-size:28px;line-height:1.1;margin:0;letter-spacing:-.5px}
+    .top-meta{color:var(--muted);font-size:13px;margin-top:5px}
+    .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .clock{background:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:999px;color:var(--muted);white-space:nowrap;box-shadow:0 3px 12px rgba(20,32,43,.04)}
+    .section{display:none;min-width:0}
+    .section.active{display:block}
+    .section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 12px}
+    .section-title:first-child{margin-top:0}
+    .section-title h2{margin:0;font-size:21px;letter-spacing:-.2px}
+    .section-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);min-width:0}
+    .btn{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;transition:.15s ease}
+    .btn:hover:not(:disabled){transform:translateY(-1px)}
+    .btn:disabled{opacity:.48;cursor:not-allowed;transform:none}
+    .btn.small{padding:7px 10px;min-height:34px;font-size:13px}
+    .primary{background:var(--green);color:var(--accent-ink)}
+    .primary:hover:not(:disabled){background:var(--green-dark)}
+    .ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+    .danger{background:var(--red-soft);color:var(--red);border:1px solid #f0caca}
+    .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+    .input{border:1px solid #d3dade;background:#fff;border-radius:10px;padding:10px 12px;min-height:42px;outline:none;color:var(--ink)}
+    .input:focus{border-color:#72aa94;box-shadow:0 0 0 3px rgba(27,128,93,.12)}
+    .input::placeholder{color:#9aa3a8}
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+    .field input,.field select{width:100%}
+    .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .span2{grid-column:1/-1}
+    .checkline{display:flex;gap:9px;align-items:center;padding:10px 12px;background:var(--green-soft);border-radius:10px;font-weight:700}
+    .checkline input{width:18px;height:18px;accent-color:var(--green)}
+    .metrics-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+    .metric{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:var(--shadow)}
+    .metric .label{color:var(--muted);font-size:12px;font-weight:600}
+    .metric .value{font-size:23px;font-weight:850;margin-top:6px;letter-spacing:-.3px}
+    .metric .accent{color:var(--green)}
+    .quick-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+    .table-tools{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    .table-tools .input{min-width:270px}
+    .table-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 18px rgba(20,32,43,.035)}
+    table{border-collapse:collapse;width:100%;min-width:760px}
+    th,td{padding:12px 13px;border-bottom:1px solid #edf0f1;text-align:left;vertical-align:middle}
+    th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fafbfb;position:sticky;top:0;z-index:1}
+    tr:last-child td{border-bottom:0}
+    tbody tr:hover{background:#fbfcfb}
+    .status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+    .ok{background:var(--green-soft);color:var(--green)}
+    .low{background:var(--amber-soft);color:var(--amber)}
+    .out{background:#fdeaea;color:var(--red)}
+    .neutral{background:var(--blue-soft);color:#37586b}
+    .small{font-size:12px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .right{text-align:right}
+    .empty{padding:30px;color:var(--muted);text-align:center}
+    .notice{padding:10px 12px;border-radius:10px;background:var(--green-soft);color:#315e4e;font-size:13px;margin:10px 0}
+    .hint{font-size:12px;color:var(--muted);margin-top:7px}
+
+    .pos{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(430px,.8fr);gap:14px;align-items:start}
+    .catalog-card{padding:14px}
+    .searchbox{display:flex;gap:8px;margin-bottom:8px}
+    .searchbox input{flex:1;font-size:16px}
+    .category-bar{display:flex;gap:6px;overflow:auto;padding:8px 0 10px;scrollbar-width:thin}
+    .chip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 10px;white-space:nowrap;cursor:pointer;font-size:12px;font-weight:700}
+    .chip.active{background:var(--nav);color:#fff;border-color:var(--nav)}
+    .catalog-scroll{max-height:650px;overflow:auto;padding-right:4px;scrollbar-width:thin}
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px}
+    .prod{background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 8px;cursor:pointer;text-align:left;min-height:62px;display:flex;flex-direction:column;justify-content:space-between;gap:4px;transition:.12s ease;min-width:0}
+    .prod:hover:not(:disabled){border-color:#82ad9b;background:#fbfefc;box-shadow:0 4px 12px rgba(27,128,93,.08)}
+    .prod:disabled{cursor:not-allowed;background:#f4f5f5;color:#8a9296}
+    .prod-top{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;min-width:0}
+    .prod .name{font-weight:850;font-size:12px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .prod .meta{font-size:9px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .prod .price-row{display:flex;align-items:center;justify-content:space-between;gap:5px}
+    .prod .price{font-weight:900;color:var(--green);font-size:12px;white-space:nowrap}
+    .prod:disabled .price{color:#8a9296}
+    .pin-dot{color:#c88619;font-size:11px;flex:none}
+    .prod-category{max-width:68px;padding:2px 5px;border-radius:999px;background:var(--blue-soft);color:#486271;font-size:8px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .prod .status{font-size:8px;padding:2px 5px}
+    .cart-card{position:sticky;top:20px;padding:14px}
+    .cart-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:10px}
+    .cart-tabs button{min-width:0;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+    .cart-tabs button.active{background:var(--nav);color:#fff;border-color:var(--nav)}
+    .cart-list{max-height:430px;overflow:auto;border-top:1px solid var(--line);scrollbar-width:thin}
+    .cart-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f1}
+    .cart-row .item-name{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .qty{display:flex;align-items:center;gap:5px}
+    .qty button{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer}
+    .totalbox{display:flex;justify-content:space-between;align-items:end;padding-top:13px}
+    .totalbox .t{font-size:12px;color:var(--muted)}
+    .totalbox .v{font-size:29px;font-weight:900;letter-spacing:-.5px}
+    .paybox{border-top:1px solid var(--line);margin-top:11px;padding-top:11px}
+    .paybox .btn{flex:1}
+
+    .sim-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+    .sim-head h2{font-size:22px;margin:0}
+    .sim-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .sim-overview{display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-bottom:16px}
+    .price-card h3{margin:0 0 12px;font-size:17px}
+    .price-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+    .sim-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+    .summary-box{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px}
+    .summary-box .value{font-size:21px;font-weight:850;margin-top:5px}
+    .sim-list{display:flex;flex-direction:column;gap:10px}
+    .sim-row{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 16px;display:grid;grid-template-columns:minmax(210px,1fr) minmax(290px,1.35fr) auto;gap:18px;align-items:center;box-shadow:0 6px 20px rgba(20,32,43,.045)}
+    .sim-title{display:flex;align-items:center;gap:8px;font-weight:850;font-size:16px}
+    .sim-number{margin-top:4px;color:var(--muted);font-size:12px}
+    .quota-top{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:700;margin-bottom:7px}
+    .usage{height:9px;background:#edf0f1;border-radius:99px;overflow:hidden}
+    .usage>span{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .2s ease}
+    .sim-actions{display:flex;gap:7px;align-items:center}
+    .package-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .package-option{position:relative}
+    .package-option input{position:absolute;opacity:0;pointer-events:none}
+    .package-option label{display:block;border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;background:#fff}
+    .package-option input:checked+label{border-color:var(--green);background:var(--green-soft);box-shadow:0 0 0 2px rgba(27,128,93,.11)}
+    .package-option input:disabled+label{opacity:.42;cursor:not-allowed;background:#f2f3f3}
+    .package-option strong{display:block;font-size:17px}
+    .package-option span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+    .services-intro{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
+    .services-intro h2{margin:0;font-size:22px}
+    .services-intro p{margin:5px 0 0;color:var(--muted);font-size:13px}
+    .service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+    .service-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;color:var(--ink);display:flex;flex-direction:column;min-height:160px;box-shadow:0 6px 20px rgba(20,32,43,.045);transition:.15s ease}
+    .service-card:hover{transform:translateY(-2px);border-color:#86b29f;box-shadow:0 10px 24px rgba(27,128,93,.10)}
+    .service-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .service-icon{width:40px;height:40px;border-radius:11px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-weight:900;font-size:16px}
+    .service-arrow{color:var(--muted);font-size:18px}
+    .service-card h3{font-size:15px;margin:13px 0 4px}
+    .service-card p{font-size:12px;color:var(--muted);margin:0;line-height:1.45}
+    .service-category{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--green);font-weight:850;margin-top:auto;padding-top:10px}
+    .service-link{color:inherit;text-decoration:none;display:block}.service-actions{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+    .settings-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:14px;align-items:start}
+    .settings-card h2{margin:0 0 4px;font-size:20px}.settings-card>p{margin:0 0 18px;color:var(--muted);font-size:13px}
+    .logo-settings{display:flex;align-items:center;gap:14px;padding:12px;border:1px dashed #cbd3d6;border-radius:12px;background:#fafbfb}
+    .logo-preview{width:90px;height:76px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px;padding:5px}
+    .backup-actions{display:flex;gap:8px;flex-wrap:wrap}.license-box{font-family:Consolas,monospace;font-size:12px;word-break:break-all}
+    .auth-brand-line{display:flex;align-items:center;gap:12px;position:relative;z-index:1}.auth-brand-image{width:54px;height:54px;object-fit:contain;background:#fff;border-radius:13px;padding:3px}.auth-brand-line .auth-logo{font-size:28px}
+
+    .modal{position:fixed;inset:0;background:rgba(10,23,29,.48);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;backdrop-filter:blur(2px)}
+    .modal.show{display:flex}
+    .modalbox{background:#fff;border-radius:17px;width:min(640px,100%);max-height:92vh;overflow:auto;padding:20px;box-shadow:0 28px 90px rgba(0,0,0,.26)}
+    .modalbox.narrow{width:min(520px,100%)}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
+    .modal-head h3{margin:0;font-size:20px}
+    .icon-close{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-size:20px;line-height:1}
+    .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
+    .success-mark{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:var(--green-soft);color:var(--green);font-size:28px;font-weight:900}
+    .success-center{text-align:center}
+    .success-center h3{font-size:22px;margin:0 0 7px}
+    .success-total{font-size:29px;font-weight:900;color:var(--green);margin:10px 0 16px}
+    .toast{position:fixed;right:22px;bottom:22px;background:var(--nav);color:#fff;padding:13px 17px;border-radius:11px;display:none;z-index:80;box-shadow:0 14px 40px rgba(0,0,0,.22);max-width:390px}
+    .toast.show{display:block}
+    .auth-screen{min-height:100vh;display:grid;grid-template-columns:minmax(330px,.8fr) minmax(520px,1.2fr);background:#fff}
+    .auth-visual{background:linear-gradient(150deg,#0d2936 0%,#16485a 62%,#1b805d 100%);color:#fff;padding:clamp(38px,7vw,90px);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+    .auth-visual::after{content:"";position:absolute;width:440px;height:440px;border:1px solid rgba(255,255,255,.13);border-radius:50%;right:-190px;bottom:-190px;box-shadow:0 0 0 80px rgba(255,255,255,.035),0 0 0 160px rgba(255,255,255,.025)}
+    .auth-logo{font-size:28px;font-weight:900;position:relative;z-index:1}.auth-version{display:inline-block;font-size:12px;background:rgba(255,255,255,.16);padding:4px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
+    .auth-promise{position:relative;z-index:1;max-width:520px}.auth-promise h2{font-size:clamp(31px,4vw,53px);line-height:1.03;margin:0 0 18px;letter-spacing:-1.5px}.auth-promise p{font-size:16px;line-height:1.6;color:#d6e6eb;max-width:470px}
+    .auth-foot{font-size:12px;color:#bdd1d8;position:relative;z-index:1}
+    .auth-panel{display:grid;place-items:center;padding:32px;background:var(--bg)}
+    .auth-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:0 22px 70px rgba(20,32,43,.12)}
+    .auth-card h1{font-size:27px;margin:0 0 7px;letter-spacing:-.4px}.auth-card>p{color:var(--muted);line-height:1.5;margin:0 0 23px}.auth-card .field{margin-bottom:14px}.auth-card .btn{width:100%;margin-top:4px}
+    .auth-error{display:none;background:var(--red-soft);color:var(--red);border:1px solid #f0caca;border-radius:9px;padding:10px 12px;font-size:13px;margin-bottom:13px}.auth-error.show{display:block}
+    .auth-security{display:flex;gap:8px;align-items:flex-start;margin-top:17px;color:var(--muted);font-size:11px;line-height:1.45}.auth-security strong{color:var(--green);font-size:15px}
+    .license-code-row{display:grid;grid-template-columns:1fr auto;gap:8px}.license-code{font-family:Consolas,monospace;font-weight:800;letter-spacing:.6px;background:#f4f7f8}.license-key{min-height:112px;resize:vertical;font-family:Consolas,monospace;font-size:12px;line-height:1.45}.license-help{font-size:12px;color:var(--muted);line-height:1.5;margin:7px 0 15px}.license-help b{color:var(--ink)}
+    .theme-picker{display:grid;grid-template-columns:88px minmax(0,1fr);gap:14px;align-items:center}
+    .theme-color-input{width:88px;height:64px;padding:4px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+    .theme-preview{height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:850;color:#fff;transition:.15s ease}
+    .theme-swatches{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+    .theme-swatch{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;transition:.12s ease}
+    .theme-swatch:hover{transform:scale(1.08)}.theme-swatch.selected{box-shadow:0 0 0 3px var(--ink)}
+
+    @media(max-width:1280px){
+      .metrics-grid{grid-template-columns:repeat(3,1fr)}
+      .pos{grid-template-columns:minmax(0,1fr) minmax(390px,.78fr)}
+      .products{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+      .sim-overview{grid-template-columns:1fr}
+    }
+    @media(max-width:1050px){
+      .pos{grid-template-columns:1fr}
+      .cart-card{position:relative;top:auto}
+      .catalog-scroll{max-height:none}
+      .sim-row{grid-template-columns:1fr 1.2fr}.sim-actions{grid-column:1/-1;justify-content:flex-end}
+      .service-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .settings-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:780px){
+      .auth-screen{grid-template-columns:1fr}.auth-visual{display:none}.auth-panel{min-height:100vh;padding:18px}.auth-card{padding:23px}
+      .app{grid-template-columns:minmax(0,1fr)}
+      .side{position:relative;height:auto;padding:16px;overflow:hidden}
+      .brand-wrap{padding-bottom:14px;margin-bottom:10px}
+      .nav{flex-direction:row;overflow:auto;max-width:100%;padding-bottom:4px}
+      .nav button{width:auto;white-space:nowrap;min-height:42px;padding:9px 11px}
+      .nav-icon{display:none}
+      .main{padding:15px;min-width:0}
+      .content,.top,.section,.pos,.card{min-width:0}
+      .top{align-items:flex-start;flex-direction:column}.top-actions{justify-content:flex-start}.clock{font-size:12px}
+      .metrics-grid{grid-template-columns:1fr 1fr}
+      .products{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .formgrid,.price-grid,.sim-summary{grid-template-columns:1fr}
+      .span2{grid-column:auto}
+      .sim-row{grid-template-columns:1fr;gap:12px}.sim-actions{grid-column:auto;justify-content:stretch}.sim-actions .btn{flex:1}
+      .sim-head{align-items:flex-start;flex-direction:column}
+      .table-tools .input{min-width:0;width:100%}
+      .service-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:480px){
+      .metrics-grid{grid-template-columns:1fr}
+      .products{grid-template-columns:1fr 1fr}
+      .prod{min-height:78px;padding:8px}
+      .cart-tabs{display:flex;overflow:auto}.cart-tabs button{min-width:82px}
+      .package-options{grid-template-columns:1fr}
+      .modal{padding:10px}.modalbox{padding:16px}
+      .service-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-screen hidden" id="licenseScreen">
+    <section class="auth-visual">
+      <div class="auth-brand-line"><img class="auth-brand-image" src="/api/branding/logo" alt="Logo"><div class="auth-logo">Jamel v1</div></div>
+      <div class="auth-promise"><h2>Licence protégée,<br>liée à cet ordinateur.</h2><p>Chaque copie de Jamel v1 doit être activée avec une clé produit créée spécialement pour ce PC.</p></div>
+      <div class="auth-foot">La clé produit d'un autre ordinateur ne peut pas être réutilisée.</div>
+    </section>
+    <section class="auth-panel">
+      <form class="auth-card" id="licenseForm">
+        <h1>Activation de Jamel v1</h1>
+        <p>Envoyez le code machine au fournisseur, puis collez la clé produit reçue.</p>
+        <div class="auth-error" id="licenseError"></div>
+        <div class="field"><label>Code machine</label><div class="license-code-row"><input class="input license-code" id="machineCode" readonly><button class="btn ghost" id="copyMachineCode" type="button">Copier</button></div></div>
+        <div class="license-help">Ce code identifie uniquement cette installation. Contact activation : <b>WhatsApp +216 96 753 257</b>.</div>
+        <div class="field"><label>Clé produit</label><textarea class="input license-key" id="productKey" autocomplete="off" spellcheck="false" placeholder="JML1.…" required></textarea></div>
+        <button class="btn primary" id="licenseSubmit">Activer le logiciel</button>
+        <div class="auth-security"><strong>🔒</strong><span>Activation permanente pour ce PC. Une copie installée ailleurs demandera sa propre clé.</span></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="auth-screen hidden" id="authScreen">
+    <section class="auth-visual">
+      <div class="auth-brand-line"><img class="auth-brand-image" data-business-logo src="/api/branding/logo" alt="Logo"><div class="auth-logo"><span data-business-name>Librairie Anssem</span> <span class="auth-version">v1</span></div></div>
+      <div class="auth-promise"><h2>Votre magasin,<br>plus simple à gérer.</h2><p>Caisse, stock, crédits clients, ventes SIM et services digitaux réunis dans un logiciel local et rapide.</p></div>
+      <div class="auth-foot">Données enregistrées localement sur cet ordinateur.</div>
+    </section>
+    <section class="auth-panel">
+      <form class="auth-card" id="authForm">
+        <h1 id="authTitle">Connexion administrateur</h1>
+        <p id="authIntro">Connectez-vous pour accéder à la caisse.</p>
+        <div class="auth-error" id="authError"></div>
+        <div class="field"><label>Nom administrateur</label><input class="input" id="authUsername" autocomplete="username" required maxlength="60"></div>
+        <div class="field"><label>Mot de passe</label><input class="input" id="authPassword" type="password" autocomplete="current-password" required minlength="8"></div>
+        <div class="field hidden" id="authConfirmWrap"><label>Confirmer le mot de passe</label><input class="input" id="authConfirm" type="password" autocomplete="new-password" minlength="8"></div>
+        <button class="btn primary" id="authSubmit">Se connecter</button>
+        <div class="auth-security"><strong>✓</strong><span>Session protégée. Aucun mot de passe n'est conservé en clair.</span></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="app hidden" id="app">
+    <aside class="side">
+      <div class="brand-wrap">
+        <div class="brand-row"><img class="side-logo" data-business-logo src="/api/branding/logo" alt="Logo"><div class="brand" data-business-name>Librairie Anssem</div><span class="version">v1</span></div>
+        <div class="sub">POS • Stock • Crédit • Connexion</div>
+      </div>
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <button data-sec="dashboard" class="active"><span class="nav-icon">⌂</span>Tableau de bord</button>
+        <button data-sec="caisse"><span class="nav-icon">▣</span>Caisse</button>
+        <button data-sec="products"><span class="nav-icon">▤</span>Produits</button>
+        <button data-sec="stock"><span class="nav-icon">▥</span>Stock</button>
+        <button data-sec="clients"><span class="nav-icon">◎</span>Crédits clients</button>
+        <button data-sec="sim"><span class="nav-icon">◉</span>Connexion SIM</button>
+        <button data-sec="digital"><span class="nav-icon">↗</span>Services digitaux</button>
+        <button data-sec="history"><span class="nav-icon">≡</span>Historique</button>
+        <button data-sec="settings"><span class="nav-icon">⚙</span>Paramètres</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="content">
+        <header class="top">
+          <div><h1 id="pageTitle">Tableau de bord</h1><div class="top-meta">Mode local • Données sauvegardées automatiquement sur ce PC</div></div>
+          <div class="top-actions"><span class="clock" id="clock"></span><button class="btn ghost small" id="themeBtn">🎨 Thème</button><button class="btn ghost small" id="logoutBtn">Déconnexion</button></div>
+        </header>
+
+        <section id="dashboard" class="section active">
+          <div class="metrics-grid" id="metrics"></div>
+          <div class="quick-actions">
+            <button class="btn primary" data-go="caisse">＋ Nouvelle vente</button>
+            <button class="btn ghost" data-go="stock">▥ Ajouter du stock</button>
+            <button class="btn ghost" data-go="sim">◉ Vente SIM</button>
+            <a class="btn ghost" href="/api/backup">↧ Sauvegarder les données</a>
+          </div>
+          <div class="section-title"><h2>Alertes stock</h2></div>
+          <div class="table-wrap"><table><thead><tr><th>Produit</th><th>Stock</th><th>Seuil</th><th>État</th></tr></thead><tbody id="lowStock"></tbody></table></div>
+        </section>
+
+        <section id="caisse" class="section">
+          <div class="pos">
+            <div class="card catalog-card">
+              <div class="searchbox"><input id="scanInput" class="input" placeholder="Scanner un code-barres ou rechercher…" autocomplete="off"><button class="btn ghost" id="clearSearch">Effacer</button></div>
+              <div class="hint">Scanner USB : scannez le code puis appuyez sur Entrée.</div>
+              <div class="category-bar" id="categoryBar"></div>
+              <div class="catalog-scroll" id="productCatalog"></div>
+            </div>
+            <div class="card cart-card">
+              <div class="cart-tabs" id="cartTabs"></div>
+              <div class="cart-list" id="cartList"></div>
+              <div class="totalbox"><div><div class="t">Total panier</div><div class="v" id="cartTotal">0.000 DT</div></div><button class="btn ghost small" id="addFee">＋ Autre frais</button></div>
+              <div class="paybox"><div class="row"><button class="btn primary" id="payCash">Paiement espèces</button><button class="btn ghost" id="payCredit">Paiement crédit</button></div><div class="notice">5 paniers indépendants et sauvegardés automatiquement.</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="products" class="section">
+          <div class="section-title"><h2>Produits & services</h2><button class="btn primary" id="newProduct">＋ Nouveau produit</button></div>
+          <div class="table-tools"><input id="productSearch" class="input" placeholder="Rechercher par nom, code ou catégorie…"></div>
+          <div class="table-wrap"><table><thead><tr><th>Produit</th><th>Code-barres</th><th>Type</th><th>Prix achat</th><th>Prix vente</th><th>Stock</th><th>Épinglé</th><th></th></tr></thead><tbody id="productsTable"></tbody></table></div>
+        </section>
+
+        <section id="stock" class="section">
+          <div class="section-title"><h2>Gestion du stock</h2></div>
+          <div class="table-tools"><input id="stockSearch" class="input" placeholder="Rechercher un produit…"></div>
+          <div class="table-wrap"><table><thead><tr><th>Produit</th><th>Code-barres</th><th>Stock actuel</th><th>Seuil</th><th>État</th><th>Entrée stock</th></tr></thead><tbody id="stockTable"></tbody></table></div>
+        </section>
+
+        <section id="clients" class="section">
+          <div class="section-title"><h2>Crédits clients</h2></div>
+          <div class="table-wrap"><table><thead><tr><th>Client</th><th>Téléphone</th><th>Dette</th><th>Encaissement</th></tr></thead><tbody id="clientsTable"></tbody></table></div>
+        </section>
+
+        <section id="sim" class="section">
+          <div class="sim-head">
+            <div><h2>Gestion des SIM</h2><p>Chaque SIM dispose de 1000 Mo par jour. La vente se fait directement depuis sa ligne.</p></div>
+            <div class="section-actions"><a class="btn ghost" href="/api/reports/sim/daily.pdf" download>↧ PDF ventes du jour</a><button class="btn primary" id="newSIM">＋ Ajouter SIM</button></div>
+          </div>
+          <div class="sim-overview">
+            <div class="card price-card"><h3>Prix des forfaits</h3><div class="price-grid"><div class="field"><label>Prix 500 Mo</label><input id="p500" class="input" type="number" step="0.001" min="0"></div><div class="field"><label>Prix 1 Go</label><input id="p1000" class="input" type="number" step="0.001" min="0"></div><button class="btn ghost" id="saveConnPrices">Enregistrer</button></div></div>
+            <div class="sim-summary" id="simSummary"></div>
+          </div>
+          <div class="sim-list" id="simList"></div>
+        </section>
+
+        <section id="digital" class="section">
+          <div class="services-intro"><div><h2>Services digitaux</h2><p>Accès direct aux plateformes utiles. Ajoutez et modifiez vos propres raccourcis.</p></div><button class="btn primary" id="newDigitalService">＋ Ajouter un service</button></div>
+          <div class="service-grid" id="serviceGrid"></div>
+        </section>
+
+        <section id="history" class="section">
+          <div class="section-title"><h2>Historique des ventes</h2></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>N°</th><th>Paiement</th><th>Client</th><th>Articles</th><th>Total</th><th>Facture</th></tr></thead><tbody id="salesTable"></tbody></table></div>
+          <div class="section-title"><h2>Historique connexion</h2><a class="btn ghost small" id="simHistoryPDF" href="/api/reports/sim/daily.pdf" download>PDF de la date</a></div>
+          <div class="table-tools"><input id="transferSearch" class="input" placeholder="Rechercher SIM, client, numéro ou vendeur…"><input id="transferDate" class="input" type="date"></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>SIM</th><th>Client</th><th>Forfait</th><th>Vendeur</th><th>Recette</th></tr></thead><tbody id="transfersTable"></tbody></table></div>
+        </section>
+
+        <section id="settings" class="section">
+          <div class="settings-grid">
+            <form class="card settings-card" id="businessForm"><h2>Identité de la librairie</h2><p>Ces informations apparaissent dans la connexion, le menu et les factures A4.</p><div class="formgrid"><div class="field span2"><label>Nom de la librairie</label><input class="input" id="businessName" required maxlength="120"></div><div class="field span2"><label>Adresse</label><input class="input" id="businessAddress" maxlength="220"></div><div class="field"><label>WhatsApp / téléphone</label><input class="input" id="businessWhatsApp" maxlength="60"></div><div class="field"><label>Email</label><input class="input" id="businessEmail" type="email" maxlength="120"></div><div class="field span2"><label>Matricule fiscal</label><input class="input" id="businessTaxID" maxlength="80"></div><div class="field"><label>Couleur du logiciel</label><input class="theme-color-input" id="businessTheme" type="color"></div><div class="field"><label>Couleur principale facture</label><input class="theme-color-input" id="invoicePrimary" type="color"></div><div class="field"><label>Couleur secondaire facture</label><input class="theme-color-input" id="invoiceAccent" type="color"></div><div class="field span2"><label>Logo (PNG/JPEG, max. 2 Mo)</label><div class="logo-settings"><img class="logo-preview" id="businessLogoPreview" data-business-logo src="/api/branding/logo" alt="Aperçu logo"><div style="flex:1"><input class="input" id="businessLogo" type="file" accept="image/png,image/jpeg"><label class="checkline" style="margin-top:8px"><input id="removeBusinessLogo" type="checkbox">Revenir au logo d'origine</label></div></div></div></div><div class="actions"><button class="btn primary" id="saveBusiness">Enregistrer tous les paramètres</button></div></form>
+            <div style="display:grid;gap:14px"><div class="card settings-card"><h2>Sauvegarde</h2><p>Gardez une copie complète des produits, ventes, clients, services et paramètres.</p><div class="backup-actions"><a class="btn primary" href="/api/backup" download>↧ Télécharger backup</a><label class="btn ghost" for="restoreFile">Choisir un backup</label><input class="hidden" id="restoreFile" type="file" accept="application/json,.json"><button class="btn ghost" id="restoreBackup" type="button" disabled>Restaurer</button></div><div class="hint" id="restoreFileName">Aucun fichier sélectionné.</div></div><div class="card settings-card"><h2>Licence</h2><p>Cette installation est liée à cet ordinateur.</p><div class="field"><label>Client licence</label><div class="notice" id="licenseCustomer">—</div></div><div class="field"><label>Code machine</label><div class="notice license-box" id="settingsMachineCode">—</div></div></div></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle"><div class="modalbox"><div class="modal-head"><h3 id="productModalTitle">Produit</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><form id="productForm"><input type="hidden" id="prodId"><div class="formgrid"><div class="field span2"><label>Nom</label><input class="input" id="prodName" required></div><div class="field"><label>Code-barres / référence</label><input class="input" id="prodBarcode" required></div><div class="field"><label>Catégorie</label><input class="input" id="prodCategory" list="categoryOptions" placeholder="Ex. Cahiers"><datalist id="categoryOptions"><option value="Électronique"><option value="Livres"><option value="Cahiers"><option value="Cartables"><option value="Fournitures"><option value="Papier"><option value="Services"></datalist></div><div class="field"><label>Type</label><select class="input" id="prodKind"><option value="stock">Produit stocké</option><option value="service">Service</option></select></div><div class="field"><label>Prix achat</label><input class="input" id="prodPurchase" type="number" step="0.001" min="0"></div><div class="field"><label>Prix vente</label><input class="input" id="prodSale" type="number" step="0.001" min="0" required></div><div class="field"><label>Stock initial</label><input class="input" id="prodStock" type="number" step="1"></div><div class="field"><label>Seuil alerte</label><input class="input" id="prodMin" type="number" step="1"></div><label class="checkline span2"><input type="checkbox" id="prodPinned">Épingler en haut de la Caisse</label></div><div class="actions"><button type="button" class="btn ghost closeModal">Annuler</button><button class="btn primary" id="saveProduct">Enregistrer</button></div></form></div></div>
+
+  <div class="modal" id="payModal" role="dialog" aria-modal="true" aria-labelledby="payTitle"><div class="modalbox narrow"><div class="modal-head"><h3 id="payTitle">Paiement</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><div id="payContent"></div><div class="actions"><button class="btn ghost closeModal">Annuler</button><button class="btn primary" id="confirmPay">Valider la vente</button></div></div></div>
+
+  <div class="modal" id="simModal" role="dialog" aria-modal="true" aria-labelledby="simModalTitle"><div class="modalbox narrow"><div class="modal-head"><h3 id="simModalTitle">Ajouter une SIM</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><form id="simForm"><div class="formgrid"><div class="field"><label>Libellé</label><input class="input" id="simLabel" placeholder="SIM 03" required></div><div class="field"><label>Numéro de la SIM</label><input class="input" id="simNumber" inputmode="numeric" required></div><div class="field span2"><label>Opérateur</label><input class="input" id="simOperator" placeholder="Ooredoo / Orange / Tunisie Telecom"></div></div><div class="notice">Quota quotidien automatique : 1000 Mo.</div><div class="actions"><button type="button" class="btn ghost closeModal">Annuler</button><button class="btn primary">Ajouter la SIM</button></div></form></div></div>
+
+  <div class="modal" id="simSaleModal" role="dialog" aria-modal="true" aria-labelledby="simSaleTitle"><div class="modalbox narrow"><div class="modal-head"><h3 id="simSaleTitle">Vendre une connexion</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><form id="simSaleForm"><input type="hidden" id="simSaleID"><div class="notice" id="simSaleInfo"></div><div class="formgrid"><div class="field"><label>Nom du client (optionnel)</label><input id="simClientName" class="input" maxlength="120" placeholder="Ex. Ahmed"></div><div class="field"><label>Numéro destination (optionnel)</label><input id="simDestPhone" class="input" inputmode="numeric" placeholder="Ex. 97981347"></div></div><div class="hint">Vous pouvez valider directement sans renseigner le client. Le vendeur connecté sera enregistré automatiquement.</div><div class="field" style="margin-top:14px"><label>Choisir le forfait</label><div class="package-options"><div class="package-option"><input type="radio" name="simPackage" id="pack500" value="500" checked><label for="pack500"><strong>500 Mo</strong><span id="pack500Price"></span></label></div><div class="package-option"><input type="radio" name="simPackage" id="pack1000" value="1000"><label for="pack1000"><strong>1 Go</strong><span id="pack1000Price"></span></label></div></div></div><div class="actions"><button type="button" class="btn ghost closeModal">Annuler</button><button class="btn primary" id="confirmSIMSale">Valider la vente SIM</button></div></form></div></div>
+
+  <div class="modal" id="digitalServiceModal" role="dialog" aria-modal="true" aria-labelledby="digitalServiceTitle"><div class="modalbox narrow"><div class="modal-head"><h3 id="digitalServiceTitle">Service digital</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><form id="digitalServiceForm"><input type="hidden" id="digitalServiceID"><div class="formgrid"><div class="field span2"><label>Nom du service</label><input class="input" id="digitalServiceName" required maxlength="100"></div><div class="field span2"><label>Lien complet</label><input class="input" id="digitalServiceURL" type="url" required placeholder="https://..."></div><div class="field"><label>Catégorie</label><input class="input" id="digitalServiceCategory" maxlength="60" placeholder="Administration"></div><div class="field"><label>Icône (1 à 3 caractères)</label><input class="input" id="digitalServiceIcon" maxlength="3" placeholder="ED"></div><div class="field span2"><label>Description</label><input class="input" id="digitalServiceDescription" maxlength="240"></div></div><div class="actions"><button type="button" class="btn ghost closeModal">Annuler</button><button class="btn primary" id="saveDigitalService">Enregistrer</button></div></form></div></div>
+
+  <div class="modal" id="feeModal" role="dialog" aria-modal="true" aria-labelledby="feeModalTitle"><div class="modalbox narrow"><div class="modal-head"><h3 id="feeModalTitle">Ajouter un autre frais</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><form id="feeForm"><div class="field"><label>Description</label><input id="feeName" class="input" placeholder="Ex. Photocopie spéciale, livraison…" required maxlength="120"></div><div class="field" style="margin-top:12px"><label>Montant</label><input id="feePrice" class="input" type="number" min="0.001" step="0.001" placeholder="0.000" required></div><div class="actions"><button type="button" class="btn ghost closeModal">Annuler</button><button class="btn primary">Ajouter au panier</button></div></form></div></div>
+
+  <div class="modal" id="themeModal" role="dialog" aria-modal="true" aria-labelledby="themeModalTitle"><div class="modalbox narrow"><div class="modal-head"><h3 id="themeModalTitle">Couleur du thème</h3><button class="icon-close closeModal" type="button" aria-label="Fermer">×</button></div><form id="themeForm"><p class="muted">Choisissez une couleur prête ou créez exactement celle que vous voulez.</p><div class="theme-picker"><input class="theme-color-input" id="themeColor" type="color" value="#1b805d" aria-label="Couleur personnalisée"><div class="theme-preview" id="themePreview">Aperçu du thème</div></div><div class="theme-swatches"><button class="theme-swatch" type="button" data-theme-color="#1b805d" style="background:#1b805d" aria-label="Vert"></button><button class="theme-swatch" type="button" data-theme-color="#1769aa" style="background:#1769aa" aria-label="Bleu"></button><button class="theme-swatch" type="button" data-theme-color="#6d45a5" style="background:#6d45a5" aria-label="Violet"></button><button class="theme-swatch" type="button" data-theme-color="#b44747" style="background:#b44747" aria-label="Rouge"></button><button class="theme-swatch" type="button" data-theme-color="#c36a18" style="background:#c36a18" aria-label="Orange"></button><button class="theme-swatch" type="button" data-theme-color="#253447" style="background:#253447" aria-label="Bleu nuit"></button></div><div class="actions"><button type="button" class="btn ghost closeModal">Annuler</button><button class="btn primary">Enregistrer le thème</button></div></form></div></div>
+
+  <div class="modal" id="saleSuccessModal" role="dialog" aria-modal="true" aria-labelledby="saleSuccessTitle"><div class="modalbox narrow"><div class="success-center"><div class="success-mark">✓</div><h3 id="saleSuccessTitle">Vente enregistrée</h3><div class="muted" id="saleSuccessText"></div><div class="success-total" id="saleSuccessTotal"></div><div class="actions" style="justify-content:center"><a class="btn primary" id="invoiceLink" href="#" download>↧ Facture A4</a><button class="btn ghost closeModal" type="button">Continuer</button></div></div></div></div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    let DATA={products:[],clients:[],sales:[],sims:[],transfers:[],digital_services:[],carts:[],settings:{business:{}}};
+    let AUTH={configured:false,authenticated:false,username:''};
+    let LICENSE={required:true,activated:false,device_code:'',customer:''};
+    let BRANDING={business:{name:'Librairie Anssem'},theme:'#1b805d',logo_url:'/api/branding/logo'};
+    let activeSlot=1,currentPayment='cash',activeCategory='Tous',selectedSIM=null;
+    const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+    const money=n=>(Number(n)||0).toFixed(3)+' DT';
+    const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    const todayKey=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())};
+    const formatDate=s=>{try{return new Date(s).toLocaleString('fr-TN',{dateStyle:'short',timeStyle:'short'})}catch{return s}};
+    function mixHex(a,b,amount){const parse=x=>[parseInt(x.slice(1,3),16),parseInt(x.slice(3,5),16),parseInt(x.slice(5,7),16)],x=parse(a),y=parse(b),h=n=>Math.round(n).toString(16).padStart(2,'0');return'#'+x.map((v,i)=>h(v+(y[i]-v)*amount)).join('')}
+    function themeInk(color){const [r,g,b]=[color.slice(1,3),color.slice(3,5),color.slice(5,7)].map(x=>parseInt(x,16));return(.299*r+.587*g+.114*b)>165?'#14202b':'#ffffff'}
+    function applyTheme(color){if(!/^#[0-9a-f]{6}$/i.test(color||''))color='#1b805d';color=color.toLowerCase();const root=document.documentElement.style;root.setProperty('--green',color);root.setProperty('--green-dark',mixHex(color,'#071820',.28));root.setProperty('--green-soft',mixHex(color,'#ffffff',.88));root.setProperty('--nav',mixHex(color,'#071820',.76));root.setProperty('--nav2',mixHex(color,'#102f3c',.58));root.setProperty('--accent-ink',themeInk(color));try{localStorage.setItem('librairie_anssem_theme',color)}catch{}return color}
+    function applyBranding(branding){BRANDING=branding||BRANDING;const business=BRANDING.business||{},name=business.name||'Librairie Anssem',logo=BRANDING.logo_url||'/api/branding/logo';document.title=name+' — Jamel v1';$$('[data-business-name]').forEach(x=>x.textContent=name);$$('[data-business-logo]').forEach(x=>{if(x.src!==new URL(logo,location.href).href)x.src=logo});applyTheme(BRANDING.theme||'#1b805d')}
+    async function loadBranding(){try{const branding=await api('/api/public/branding');applyBranding(branding);return branding}catch{return BRANDING}}
+    function updateThemePicker(color){color=/^#[0-9a-f]{6}$/i.test(color||'')?color.toLowerCase():'#1b805d';$('#themeColor').value=color;$('#themePreview').style.background=color;$('#themePreview').style.color=themeInk(color);$$('[data-theme-color]').forEach(b=>b.classList.toggle('selected',b.dataset.themeColor===color))}
+    function toast(msg,bad=false){const t=$('#toast');t.textContent=msg;t.style.background=bad?'#8f3737':'#102b38';t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2800)}
+    async function api(url,opt={}){const o={...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}};const r=await fetch(url,o);const j=await r.json().catch(()=>({ok:false,error:'Réponse invalide'}));if(r.status===401&&!url.startsWith('/api/auth/'))showAuth(true,AUTH.username);if(!r.ok||!j.ok)throw new Error(j.error||'Erreur');return j.data}
+    function showModal(id){$(id).classList.add('show')}
+    function closeModals(){$$('.modal').forEach(m=>m.classList.remove('show'))}
+    function goTo(sec){const b=$(`#nav button[data-sec="${sec}"]`);if(b)b.click()}
+    function productByID(id){return DATA.products.find(p=>p.id===id)}
+    function cart(){return DATA.carts.find(c=>c.slot===activeSlot)||{slot:activeSlot,items:[]}}
+    function stockStatus(p){if(p.stock<=0)return'<span class="status out">Rupture</span>';if(p.stock<=p.min_stock)return'<span class="status low">Stock faible</span>';return'<span class="status ok">Disponible</span>'}
+
+    function showAuth(configured,username=''){
+      AUTH={configured,authenticated:false,username:username||''};closeModals();$('#app').classList.add('hidden');$('#licenseScreen').classList.add('hidden');$('#authScreen').classList.remove('hidden');$('#authError').classList.remove('show');$('#authError').textContent='';
+      $('#authTitle').textContent=configured?'Connexion administrateur':'Créer le compte administrateur';
+      $('#authIntro').textContent=configured?'Entrez votre mot de passe pour accéder à la caisse.':'Premier démarrage : choisissez vos identifiants administrateur.';
+      $('#authUsername').value=username||'';$('#authUsername').readOnly=!!(configured&&username);$('#authPassword').value='';$('#authPassword').autocomplete=configured?'current-password':'new-password';$('#authConfirm').value='';$('#authConfirmWrap').classList.toggle('hidden',configured);$('#authSubmit').textContent=configured?'Se connecter':'Créer le compte et commencer';setTimeout(()=>$(configured&&username?'#authPassword':'#authUsername').focus(),40)
+    }
+    function showLicense(status){LICENSE=status||LICENSE;closeModals();$('#app').classList.add('hidden');$('#authScreen').classList.add('hidden');$('#licenseScreen').classList.remove('hidden');$('#machineCode').value=LICENSE.device_code||'';$('#productKey').value='';$('#licenseError').textContent=LICENSE.error||'';$('#licenseError').classList.toggle('show',!!LICENSE.error);setTimeout(()=>$('#productKey').focus(),40)}
+    function showApp(username=''){AUTH={configured:true,authenticated:true,username};$('#licenseScreen').classList.add('hidden');$('#authScreen').classList.add('hidden');$('#app').classList.remove('hidden')}
+    async function checkLicense(){try{const status=await api('/api/license/status');LICENSE=status;if(status.activated){$('#licenseScreen').classList.add('hidden');await loadBranding();await checkAuth()}else showLicense(status)}catch(e){showLicense({required:true,activated:false,device_code:'',error:'Impossible de préparer la licence : '+e.message})}}
+    async function checkAuth(){try{const status=await api('/api/auth/status');AUTH=status;if(status.authenticated){showApp(status.username);await reload()}else showAuth(status.configured,status.username)}catch(e){showAuth(false);$('#authError').textContent='Impossible de démarrer le logiciel : '+e.message;$('#authError').classList.add('show')}}
+    async function reload(){DATA=await api('/api/data');applyBranding({business:DATA.settings.business||{},theme:DATA.settings.theme,logo_url:'/api/branding/logo?v='+(DATA.settings.business?.logo_version||0)});renderAll()}
+    function renderAll(){applyTheme(DATA.settings.theme||'#1b805d');renderDashboard();renderProductViews();renderStock();renderClients();renderCarts();renderSIMs();renderDigitalServices();renderHistory();renderSettings()}
+
+    function renderDashboard(){
+      const day=todayKey(),sales=DATA.sales.filter(s=>s.time.startsWith(day)),transfers=DATA.transfers.filter(t=>t.time.startsWith(day));
+      const total=sales.reduce((a,s)=>a+s.total,0),cash=sales.filter(s=>s.payment==='cash').reduce((a,s)=>a+s.total,0),credit=sales.filter(s=>s.payment==='credit').reduce((a,s)=>a+s.total,0),conn=transfers.reduce((a,t)=>a+t.price,0),debt=DATA.clients.reduce((a,c)=>a+c.debt,0);
+      const cards=[['Ventes aujourd’hui',money(total),''],['Espèces',money(cash),'accent'],['Crédit accordé',money(credit),''],['Connexion SIM',money(conn),'accent'],['Dettes clients',money(debt),'']];
+      $('#metrics').innerHTML=cards.map(x=>`<div class="metric"><div class="label">${x[0]}</div><div class="value ${x[2]}">${x[1]}</div></div>`).join('');
+      const low=DATA.products.filter(p=>p.kind==='stock'&&p.stock<=p.min_stock);
+      $('#lowStock').innerHTML=low.length?low.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${p.stock}</td><td>${p.min_stock}</td><td>${stockStatus(p)}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Aucune alerte stock</td></tr>';
+    }
+
+    function filteredProducts(query=''){
+      const q=query.trim().toLowerCase();
+      return DATA.products.filter(p=>(activeCategory==='Tous'||p.category===activeCategory)&&(!q||p.name.toLowerCase().includes(q)||p.barcode.toLowerCase().includes(q)||(p.category||'').toLowerCase().includes(q)));
+    }
+    function renderProductViews(){
+      const categories=['Tous',...new Set(DATA.products.map(p=>p.category||'Sans catégorie').sort((a,b)=>a.localeCompare(b,'fr')))];
+      if(!categories.includes(activeCategory))activeCategory='Tous';
+      $('#categoryBar').innerHTML=categories.map(c=>`<button class="chip ${c===activeCategory?'active':''}" data-category="${esc(c)}">${esc(c)}</button>`).join('');
+      $$('[data-category]').forEach(b=>b.onclick=()=>{activeCategory=b.dataset.category;renderProductViews();$('#scanInput').focus()});
+      const ps=filteredProducts($('#scanInput').value);
+      const ordered=[...ps].sort((a,b)=>(Number(b.pinned)-Number(a.pinned))||(a.category||'').localeCompare(b.category||'','fr')||a.name.localeCompare(b.name,'fr'));
+      const card=p=>{const out=p.kind==='stock'&&p.stock<=0;return`<button class="prod" data-add="${p.id}" ${out?'disabled':''} title="${esc(p.name)} — ${esc(p.category||'Sans catégorie')}"><div><div class="prod-top"><div class="name">${esc(p.name)}</div>${p.pinned?'<span class="pin-dot" title="Épinglé">★</span>':''}</div><div class="meta">${esc(p.barcode)} · ${p.kind==='service'?'Service':'Stock '+p.stock}</div></div><div class="price-row"><span class="price">${money(p.sale_price)}</span>${out?'<span class="status out">Rupture</span>':`<span class="prod-category">${esc(p.category||'Autre')}</span>`}</div></button>`};
+      $('#productCatalog').innerHTML=ordered.length?`<div class="products">${ordered.map(card).join('')}</div>`:'<div class="empty">Aucun produit trouvé</div>';
+      $$('[data-add]').forEach(b=>b.onclick=()=>addToCart(+b.dataset.add));
+
+      const tq=$('#productSearch').value.trim().toLowerCase();
+      const tableProducts=DATA.products.filter(p=>!tq||p.name.toLowerCase().includes(tq)||p.barcode.toLowerCase().includes(tq)||(p.category||'').toLowerCase().includes(tq));
+      $('#productsTable').innerHTML=tableProducts.length?tableProducts.map(p=>`<tr><td><b>${esc(p.name)}</b><div class="small">${esc(p.category)}</div></td><td>${esc(p.barcode)}</td><td>${p.kind==='service'?'Service':'Produit'}</td><td>${money(p.purchase_price)}</td><td><b>${money(p.sale_price)}</b></td><td>${p.kind==='service'?'—':p.stock}</td><td><button class="btn small ${p.pinned?'primary':'ghost'}" data-pin="${p.id}" title="${p.pinned?'Retirer des épinglés':'Épingler en haut'}">${p.pinned?'★ Épinglé':'☆ Épingler'}</button></td><td><button class="btn ghost small" data-edit="${p.id}">Modifier</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">Aucun produit</td></tr>';
+      $$('[data-edit]').forEach(b=>b.onclick=()=>openProduct(+b.dataset.edit));
+      $$('[data-pin]').forEach(b=>b.onclick=()=>togglePin(+b.dataset.pin));
+    }
+    async function togglePin(id){const p=productByID(id);if(!p)return;try{await api('/api/product',{method:'POST',body:JSON.stringify({...p,pinned:!p.pinned})});toast(p.pinned?'Produit retiré des épinglés':'Produit épinglé en haut');await reload()}catch(e){toast(e.message,true)}}
+
+    function renderStock(){
+      const q=$('#stockSearch').value.trim().toLowerCase(),ps=DATA.products.filter(p=>p.kind==='stock'&&(!q||p.name.toLowerCase().includes(q)||p.barcode.toLowerCase().includes(q)));
+      $('#stockTable').innerHTML=ps.length?ps.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.barcode)}</td><td><b>${p.stock}</b></td><td>${p.min_stock}</td><td>${stockStatus(p)}</td><td><div class="row"><input class="input" style="width:86px" type="number" min="1" value="1" id="sq${p.id}"><button class="btn ghost small" data-stock="${p.id}">＋ Ajouter</button></div></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Aucun produit</td></tr>';
+      $$('[data-stock]').forEach(b=>b.onclick=async()=>{const qty=+$('#sq'+b.dataset.stock).value;if(qty<=0)return;try{await api('/api/stock',{method:'POST',body:JSON.stringify({ProductID:+b.dataset.stock,Qty:qty})});toast('Stock mis à jour');await reload()}catch(e){toast(e.message,true)}});
+    }
+    function renderClients(){
+      $('#clientsTable').innerHTML=DATA.clients.length?DATA.clients.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.phone)}</td><td><b>${money(c.debt)}</b></td><td>${c.debt>0?`<div class="row"><input class="input" style="width:130px" type="number" step="0.001" min="0.001" max="${c.debt}" id="cp${c.id}" placeholder="Montant"><button class="btn ghost small" data-clientpay="${c.id}">Encaisser</button></div>`:'<span class="status ok">Soldé</span>'}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Aucun client à crédit</td></tr>';
+      $$('[data-clientpay]').forEach(b=>b.onclick=async()=>{const amount=+$('#cp'+b.dataset.clientpay).value;if(amount<=0){toast('Saisissez un montant valide',true);return}try{await api('/api/client/payment',{method:'POST',body:JSON.stringify({client_id:+b.dataset.clientpay,amount})});toast('Paiement client enregistré');await reload()}catch(e){toast(e.message,true)}});
+    }
+
+    function renderCarts(){
+      $('#cartTabs').innerHTML=DATA.carts.map(c=>`<button class="${c.slot===activeSlot?'active':''}" data-slot="${c.slot}">Client ${c.slot}${c.items.length?' · '+c.items.reduce((a,x)=>a+x.qty,0):''}</button>`).join('');
+      $$('[data-slot]').forEach(b=>b.onclick=()=>{activeSlot=+b.dataset.slot;renderCarts();$('#scanInput').focus()});
+      const c=cart();let total=0;
+      const rows=c.items.map(ci=>{if(ci.product_id===0){const line=(ci.unit_price||0)*ci.qty;total+=line;return`<div class="cart-row"><div><div class="item-name">${esc(ci.custom_name)}</div><div class="small">Autre frais</div></div><span class="status neutral">Libre</span><div class="right"><b>${money(line)}</b><br><button class="btn danger small" style="padding:2px 7px;min-height:27px;margin-top:4px" data-remove-line="${esc(ci.line_id)}" aria-label="Retirer">×</button></div></div>`}const p=productByID(ci.product_id);if(!p)return'';const line=p.sale_price*ci.qty;total+=line;return`<div class="cart-row"><div><div class="item-name">${esc(p.name)}</div><div class="small">${money(p.sale_price)} / unité</div></div><div class="qty"><button data-q="-1" data-pid="${p.id}" aria-label="Diminuer">−</button><b>${ci.qty}</b><button data-q="1" data-pid="${p.id}" aria-label="Augmenter">＋</button></div><div class="right"><b>${money(line)}</b><br><button class="btn danger small" style="padding:2px 7px;min-height:27px;margin-top:4px" data-remove="${p.id}" aria-label="Retirer">×</button></div></div>`});
+      $('#cartList').innerHTML=rows.join('')||'<div class="empty">Panier vide</div>';$('#cartTotal').textContent=money(total);
+      $$('[data-q]').forEach(b=>b.onclick=()=>changeQty(+b.dataset.pid,+b.dataset.q));$$('[data-remove]').forEach(b=>b.onclick=()=>removeCart(+b.dataset.remove));$$('[data-remove-line]').forEach(b=>b.onclick=()=>removeCustomFee(b.dataset.removeLine));
+    }
+    async function saveCart(){try{await api('/api/cart',{method:'POST',body:JSON.stringify(cart())})}catch(e){toast(e.message,true)}}
+    function addToCart(pid){const c=cart(),p=productByID(pid);let it=c.items.find(x=>x.product_id===pid);if(it){if(p.kind==='stock'&&it.qty>=p.stock){toast('Stock insuffisant',true);return}it.qty++}else{if(p.kind==='stock'&&p.stock<=0){toast('Produit en rupture',true);return}c.items.push({product_id:pid,qty:1})}renderCarts();saveCart();$('#scanInput').value='';renderProductViews();$('#scanInput').focus()}
+    function changeQty(pid,d){const c=cart(),it=c.items.find(x=>x.product_id===pid),p=productByID(pid);if(!it)return;const n=it.qty+d;if(n<=0)c.items=c.items.filter(x=>x.product_id!==pid);else if(p.kind!=='stock'||n<=p.stock)it.qty=n;else{toast('Stock insuffisant',true);return}renderCarts();saveCart()}
+    function removeCart(pid){const c=cart();c.items=c.items.filter(x=>x.product_id!==pid);renderCarts();saveCart()}
+    function removeCustomFee(lineID){const c=cart();c.items=c.items.filter(x=>x.line_id!==lineID);renderCarts();saveCart()}
+    function cartTotalValue(){return cart().items.reduce((total,ci)=>{if(ci.product_id===0)return total+(ci.unit_price||0)*ci.qty;const p=productByID(ci.product_id);return total+(p?.sale_price||0)*ci.qty},0)}
+
+    function openProduct(id=0){
+      const p=id?productByID(id):null;$('#productModalTitle').textContent=p?'Modifier le produit':'Nouveau produit';$('#prodId').value=p?.id||'';$('#prodName').value=p?.name||'';$('#prodBarcode').value=p?.barcode||'';$('#prodCategory').value=p?.category||'';$('#prodKind').value=p?.kind||'stock';$('#prodPurchase').value=p?.purchase_price??0;$('#prodSale').value=p?.sale_price??0;$('#prodStock').value=p?.stock??0;$('#prodMin').value=p?.min_stock??0;$('#prodPinned').checked=!!p?.pinned;showModal('#productModal');setTimeout(()=>$('#prodName').focus(),40)
+    }
+    function openPay(kind){
+      const c=cart();if(!c.items.length){toast('Panier vide',true);return}currentPayment=kind;const total=cartTotalValue();
+      $('#payTitle').textContent=kind==='cash'?'Paiement espèces':'Vente à crédit';
+      $('#payContent').innerHTML=kind==='cash'?`<div class="notice">Total à payer : <b>${money(total)}</b></div><div class="field"><label>Montant reçu</label><input id="received" class="input" type="number" step="0.001" min="${total}" value="${total.toFixed(3)}"></div><div class="notice" id="changePreview">Monnaie à rendre : <b>0.000 DT</b></div>`:`<div class="notice">Total à crédit : <b>${money(total)}</b></div><div class="formgrid"><div class="field"><label>Nom client *</label><input id="creditName" class="input" required></div><div class="field"><label>Téléphone *</label><input id="creditPhone" class="input" inputmode="numeric" required placeholder="8 chiffres minimum"></div></div>`;
+      showModal('#payModal');if(kind==='cash')$('#received').oninput=()=>{const change=Math.max(0,+$('#received').value-total);$('#changePreview').innerHTML=`Monnaie à rendre : <b>${money(change)}</b>`};setTimeout(()=>$('#payContent input')?.focus(),40)
+    }
+    async function confirmPayment(){
+      const c=cart(),btn=$('#confirmPay');const payload={slot:activeSlot,items:c.items,payment:currentPayment,received:0,client_name:'',client_phone:''};if(currentPayment==='cash')payload.received=+$('#received').value;else{payload.client_name=$('#creditName').value;payload.client_phone=$('#creditPhone').value}
+      btn.disabled=true;btn.textContent='Enregistrement…';try{const sale=await api('/api/sale',{method:'POST',body:JSON.stringify(payload)});closeModals();await reload();$('#saleSuccessText').textContent=`Vente N° ${sale.id} enregistrée avec succès`;$('#saleSuccessTotal').textContent=money(sale.total);$('#invoiceLink').href=`/api/reports/sale/invoice.pdf?id=${sale.id}`;showModal('#saleSuccessModal')}catch(e){toast(e.message,true)}finally{btn.disabled=false;btn.textContent='Valider la vente'}
+    }
+
+    function renderSIMs(){
+      const day=todayKey(),todayTransfers=DATA.transfers.filter(t=>t.time.startsWith(day)),revenue=todayTransfers.reduce((a,t)=>a+t.price,0);
+      $('#simSummary').innerHTML=`<div class="summary-box"><div class="small">Ventes aujourd’hui</div><div class="value">${todayTransfers.length}</div></div><div class="summary-box"><div class="small">Recette du jour</div><div class="value" style="color:var(--green)">${money(revenue)}</div></div><div class="summary-box"><div class="small">SIM disponibles</div><div class="value">${DATA.sims.filter(s=>simRemaining(s)>=500).length} / ${DATA.sims.length}</div></div>`;
+      $('#p500').value=DATA.settings.conn_500_price??0;$('#p1000').value=DATA.settings.conn_1000_price??0;
+      $('#simList').innerHTML=DATA.sims.length?DATA.sims.map(s=>{const used=Math.max(0,(s.quota_mb||1000)-simRemaining(s)),remaining=simRemaining(s),pct=Math.min(100,Math.round(used/(s.quota_mb||1000)*100)),done=remaining<500;return`<div class="sim-row"><div><div class="sim-title">${esc(s.label)} ${done?'<span class="status out">Quota épuisé</span>':'<span class="status ok">Disponible</span>'}</div><div class="sim-number">${esc(s.operator||'Opérateur non défini')} • ${esc(s.number)}</div></div><div><div class="quota-top"><span>${used} / ${s.quota_mb||1000} Mo utilisés</span><span>${remaining} Mo restants</span></div><div class="usage"><span style="width:${pct}%"></span></div><div class="hint">${done?'Disponible de nouveau demain.':'Quota journalier réinitialisé automatiquement demain.'}</div></div><div class="sim-actions"><button class="btn primary" data-sim-sell="${s.id}" ${done?'disabled':''}>${done?'Disponible demain':'Vendre'}</button><button class="btn danger" data-sim-remove="${s.id}">Supprimer</button></div></div>`}).join(''):'<div class="card empty">Aucune SIM. Cliquez sur « Ajouter SIM » pour commencer.</div>';
+      $$('[data-sim-sell]').forEach(b=>b.onclick=()=>openSIMSale(+b.dataset.simSell));$$('[data-sim-remove]').forEach(b=>b.onclick=()=>removeSIM(+b.dataset.simRemove));
+    }
+    function simRemaining(s){const used=DATA.transfers.filter(t=>t.sim_id===s.id&&t.time.startsWith(todayKey())).reduce((a,t)=>a+t.package_mb,0);return Math.max(0,(s.quota_mb||1000)-used)}
+    function openSIMSale(id){selectedSIM=DATA.sims.find(s=>s.id===id);if(!selectedSIM)return;const remaining=simRemaining(selectedSIM);if(remaining<500){toast('Quota épuisé pour aujourd’hui',true);return}$('#simSaleID').value=id;$('#simSaleTitle').textContent='Vente depuis '+selectedSIM.label;$('#simSaleInfo').innerHTML=`SIM <b>${esc(selectedSIM.label)}</b> • ${remaining} Mo disponibles aujourd’hui`;$('#pack500').disabled=remaining<500;$('#pack1000').disabled=remaining<1000;$('#pack500').checked=true;$('#pack1000').checked=false;$('#pack500Price').textContent=money(DATA.settings.conn_500_price);$('#pack1000Price').textContent=money(DATA.settings.conn_1000_price);$('#simClientName').value='';$('#simDestPhone').value='';showModal('#simSaleModal');setTimeout(()=>$('#simClientName').focus(),40)}
+    async function removeSIM(id){const s=DATA.sims.find(x=>x.id===id);if(!s)return;if(!confirm(`Supprimer ${s.label} de la liste ?\nL'historique de ses anciennes ventes sera conservé.`))return;try{await api('/api/sim?id='+id,{method:'DELETE'});toast('SIM supprimée');await reload()}catch(e){toast(e.message,true)}}
+
+    function renderDigitalServices(){
+      const services=DATA.digital_services||[];
+      $('#serviceGrid').innerHTML=services.length?services.map(s=>`<article class="service-card"><a class="service-link" href="${esc(s.url)}" target="_blank" rel="noopener"><div class="service-top"><span class="service-icon">${esc(s.icon||'↗')}</span><span class="service-arrow">↗</span></div><h3>${esc(s.name)}</h3><p>${esc(s.description||'Ouvrir ce service en ligne.')}</p><div class="service-category">${esc(s.category||'Service')}</div></a><div class="service-actions"><button class="btn ghost small" data-service-edit="${s.id}">Modifier</button><button class="btn danger small" data-service-delete="${s.id}">Supprimer</button></div></article>`).join(''):'<div class="card empty" style="grid-column:1/-1">Aucun service digital. Cliquez sur « Ajouter un service ».</div>';
+      $$('[data-service-edit]').forEach(b=>b.onclick=()=>openDigitalService(+b.dataset.serviceEdit));$$('[data-service-delete]').forEach(b=>b.onclick=()=>removeDigitalService(+b.dataset.serviceDelete));
+    }
+    function openDigitalService(id=0){const s=(DATA.digital_services||[]).find(x=>x.id===id);$('#digitalServiceTitle').textContent=s?'Modifier le service':'Ajouter un service';$('#digitalServiceID').value=s?.id||'';$('#digitalServiceName').value=s?.name||'';$('#digitalServiceURL').value=s?.url||'';$('#digitalServiceCategory').value=s?.category||'';$('#digitalServiceIcon').value=s?.icon||'';$('#digitalServiceDescription').value=s?.description||'';showModal('#digitalServiceModal');setTimeout(()=>$('#digitalServiceName').focus(),40)}
+    async function removeDigitalService(id){const s=(DATA.digital_services||[]).find(x=>x.id===id);if(!s||!confirm(`Supprimer le raccourci « ${s.name} » ?`))return;try{await api('/api/digital-service?id='+id,{method:'DELETE'});toast('Service supprimé');await reload()}catch(e){toast(e.message,true)}}
+
+    function renderSettings(){const b=DATA.settings.business||{};$('#businessName').value=b.name||'';$('#businessAddress').value=b.address||'';$('#businessWhatsApp').value=b.whatsapp||'';$('#businessEmail').value=b.email||'';$('#businessTaxID').value=b.tax_id||'';$('#businessTheme').value=DATA.settings.theme||'#1b805d';$('#invoicePrimary').value=b.invoice_primary||'#080d30';$('#invoiceAccent').value=b.invoice_accent||'#879c29';$('#businessLogoPreview').src='/api/branding/logo?v='+(b.logo_version||0);$('#licenseCustomer').textContent=LICENSE.customer||'—';$('#settingsMachineCode').textContent=LICENSE.device_code||'—'}
+
+    function renderHistory(){
+      $('#salesTable').innerHTML=DATA.sales.length?[...DATA.sales].reverse().map(s=>`<tr><td>${formatDate(s.time)}</td><td>#${s.id}</td><td><span class="status ${s.payment==='cash'?'ok':'low'}">${s.payment==='cash'?'Espèces':'Crédit'}</span></td><td>${esc(s.client||'—')}</td><td>${s.items.reduce((a,i)=>a+i.qty,0)}</td><td><b>${money(s.total)}</b></td><td><a class="btn ghost small" href="/api/reports/sale/invoice.pdf?id=${s.id}" download>Facture A4</a></td></tr>`).join(''):'<tr><td colspan="7" class="empty">Aucune vente</td></tr>';
+      const q=($('#transferSearch').value||'').trim().toLowerCase(),day=$('#transferDate').value||todayKey();const transfers=DATA.transfers.filter(t=>(!day||t.time.startsWith(day))&&(!q||[t.sim_label,t.client_name,t.dest_phone,t.sold_by].some(v=>String(v||'').toLowerCase().includes(q))));$('#simHistoryPDF').href='/api/reports/sim/daily.pdf?date='+encodeURIComponent(day);
+      $('#transfersTable').innerHTML=transfers.length?[...transfers].reverse().map(t=>{const client=[t.client_name,t.dest_phone].filter(Boolean).join(' • ')||'Non renseigné';return`<tr><td>${formatDate(t.time)}</td><td><b>${esc(t.sim_label)}</b></td><td>${esc(client)}</td><td>${t.package_mb===1000?'1 Go':'500 Mo'}</td><td><span class="status neutral">${esc(t.sold_by||'Ancienne vente')}</span></td><td><b>${money(t.price)}</b></td></tr>`}).join(''):'<tr><td colspan="6" class="empty">Aucune vente connexion pour ce filtre</td></tr>';
+    }
+
+    $('#nav').onclick=e=>{const b=e.target.closest('button[data-sec]');if(!b)return;$$('#nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.section').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.sec).classList.add('active');const icon=b.querySelector('.nav-icon')?.textContent||'';$('#pageTitle').textContent=b.textContent.replace(icon,'').trim();if(b.dataset.sec==='caisse')setTimeout(()=>$('#scanInput').focus(),60)};
+    $$('[data-go]').forEach(b=>b.onclick=()=>goTo(b.dataset.go));
+    $('#scanInput').addEventListener('input',renderProductViews);$('#scanInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const q=e.target.value.trim(),p=DATA.products.find(x=>x.barcode===q);if(p)addToCart(p.id);else toast('Code-barres introuvable',true)}});
+    $('#clearSearch').onclick=()=>{$('#scanInput').value='';activeCategory='Tous';renderProductViews();$('#scanInput').focus()};
+    $('#productSearch').oninput=renderProductViews;$('#stockSearch').oninput=renderStock;$('#newProduct').onclick=()=>openProduct();
+    $('#productForm').onsubmit=async e=>{e.preventDefault();const btn=$('#saveProduct'),p={id:+$('#prodId').value,name:$('#prodName').value,barcode:$('#prodBarcode').value,category:$('#prodCategory').value,kind:$('#prodKind').value,purchase_price:+$('#prodPurchase').value,sale_price:+$('#prodSale').value,stock:+$('#prodStock').value,min_stock:+$('#prodMin').value,pinned:$('#prodPinned').checked};btn.disabled=true;try{await api('/api/product',{method:'POST',body:JSON.stringify(p)});closeModals();toast('Produit enregistré');await reload()}catch(err){toast(err.message,true)}finally{btn.disabled=false}};
+    $('#payCash').onclick=()=>openPay('cash');$('#payCredit').onclick=()=>openPay('credit');$('#confirmPay').onclick=confirmPayment;
+    $('#addFee').onclick=()=>{$('#feeForm').reset();showModal('#feeModal');setTimeout(()=>$('#feeName').focus(),40)};
+    $('#feeForm').onsubmit=e=>{e.preventDefault();const name=$('#feeName').value.trim(),price=+$('#feePrice').value;if(!name||price<=0){toast('Description et montant valides obligatoires',true);return}cart().items.push({product_id:0,qty:1,line_id:'fee-'+Date.now(),custom_name:name,unit_price:price});closeModals();renderCarts();saveCart();toast('Autre frais ajouté au panier')};
+    $('#saveConnPrices').onclick=async()=>{try{await api('/api/settings/connection',{method:'POST',body:JSON.stringify({conn_500_price:+$('#p500').value,conn_500_cost:DATA.settings.conn_500_cost||0,conn_1000_price:+$('#p1000').value,conn_1000_cost:DATA.settings.conn_1000_cost||0})});toast('Prix des forfaits mis à jour');await reload()}catch(e){toast(e.message,true)}};
+    $('#newSIM').onclick=()=>{showModal('#simModal');setTimeout(()=>$('#simLabel').focus(),40)};
+    $('#simForm').onsubmit=async e=>{e.preventDefault();try{await api('/api/sim',{method:'POST',body:JSON.stringify({id:0,label:$('#simLabel').value,number:$('#simNumber').value,operator:$('#simOperator').value,quota_mb:1000,active:true})});closeModals();e.target.reset();toast('SIM ajoutée');await reload()}catch(err){toast(err.message,true)}};
+    $('#simSaleForm').onsubmit=async e=>{e.preventDefault();const packageMB=+$('input[name="simPackage"]:checked')?.value,btn=$('#confirmSIMSale');if(!packageMB){toast('Choisissez un forfait disponible',true);return}btn.disabled=true;btn.textContent='Enregistrement…';try{const t=await api('/api/connection',{method:'POST',body:JSON.stringify({sim_id:+$('#simSaleID').value,client_name:$('#simClientName').value,dest_phone:$('#simDestPhone').value,package_mb:packageMB})});closeModals();toast(`Vente ${t.package_mb===1000?'1 Go':'500 Mo'} enregistrée par ${t.sold_by||AUTH.username}`);await reload()}catch(err){toast(err.message,true)}finally{btn.disabled=false;btn.textContent='Valider la vente SIM'}};
+    $('#newDigitalService').onclick=()=>openDigitalService();
+    $('#digitalServiceForm').onsubmit=async e=>{e.preventDefault();const btn=$('#saveDigitalService'),service={id:+$('#digitalServiceID').value,name:$('#digitalServiceName').value,url:$('#digitalServiceURL').value,category:$('#digitalServiceCategory').value,icon:$('#digitalServiceIcon').value,description:$('#digitalServiceDescription').value};btn.disabled=true;try{await api('/api/digital-service',{method:'POST',body:JSON.stringify(service)});closeModals();toast('Service digital enregistré');await reload()}catch(err){toast(err.message,true)}finally{btn.disabled=false}};
+    $('#transferDate').value=todayKey();$('#transferSearch').oninput=renderHistory;$('#transferDate').oninput=renderHistory;
+    $('#businessLogo').onchange=()=>{const file=$('#businessLogo').files[0];if(!file)return;if(file.size>2*1024*1024){toast('Le logo dépasse 2 Mo',true);$('#businessLogo').value='';return}const reader=new FileReader();reader.onload=()=>{$('#businessLogoPreview').src=reader.result;$('#removeBusinessLogo').checked=false};reader.readAsDataURL(file)};
+    $('#removeBusinessLogo').onchange=e=>{if(e.target.checked){$('#businessLogo').value='';$('#businessLogoPreview').src='/api/branding/logo?default-preview='+Date.now()}};
+    $('#businessForm').onsubmit=async e=>{e.preventDefault();const btn=$('#saveBusiness'),file=$('#businessLogo').files[0];btn.disabled=true;btn.textContent='Enregistrement…';try{let logo_data='';if(file)logo_data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});await api('/api/settings/business',{method:'POST',body:JSON.stringify({theme:$('#businessTheme').value,business:{name:$('#businessName').value,address:$('#businessAddress').value,whatsapp:$('#businessWhatsApp').value,email:$('#businessEmail').value,tax_id:$('#businessTaxID').value,invoice_primary:$('#invoicePrimary').value,invoice_accent:$('#invoiceAccent').value},logo_data,remove_logo:$('#removeBusinessLogo').checked})});$('#businessLogo').value='';$('#removeBusinessLogo').checked=false;toast('Identité, logo et couleurs enregistrés');await reload()}catch(err){toast(err.message,true)}finally{btn.disabled=false;btn.textContent='Enregistrer tous les paramètres'}};
+    $('#restoreFile').onchange=()=>{const f=$('#restoreFile').files[0];$('#restoreBackup').disabled=!f;$('#restoreFileName').textContent=f?f.name:'Aucun fichier sélectionné.'};
+    $('#restoreBackup').onclick=async()=>{const file=$('#restoreFile').files[0];if(!file)return;if(!confirm('Restaurer cette sauvegarde ? Une copie automatique des données actuelles sera conservée sur ce PC.'))return;const btn=$('#restoreBackup');btn.disabled=true;btn.textContent='Restauration…';try{const raw=await file.text();await api('/api/restore',{method:'POST',body:raw});$('#restoreFile').value='';$('#restoreFileName').textContent='Aucun fichier sélectionné.';toast('Sauvegarde restaurée avec succès');await reload()}catch(err){toast(err.message,true)}finally{btn.disabled=!$('#restoreFile').files[0];btn.textContent='Restaurer'}};
+    $('#themeBtn').onclick=()=>{updateThemePicker(DATA.settings.theme||'#1b805d');showModal('#themeModal')};
+    $('#themeColor').oninput=e=>updateThemePicker(e.target.value);
+    $$('[data-theme-color]').forEach(b=>b.onclick=()=>updateThemePicker(b.dataset.themeColor));
+    $('#themeForm').onsubmit=async e=>{e.preventDefault();const color=$('#themeColor').value,btn=e.submitter;btn.disabled=true;try{const result=await api('/api/settings/theme',{method:'POST',body:JSON.stringify({theme:color})});DATA.settings.theme=result.theme;applyTheme(result.theme);closeModals();toast('Couleur du thème enregistrée')}catch(err){toast(err.message,true)}finally{btn.disabled=false}};
+    $('#authForm').onsubmit=async e=>{e.preventDefault();const configured=AUTH.configured,username=$('#authUsername').value.trim(),password=$('#authPassword').value,confirmPassword=$('#authConfirm').value,btn=$('#authSubmit'),error=$('#authError');error.classList.remove('show');if(!configured&&password!==confirmPassword){error.textContent='Les deux mots de passe ne correspondent pas.';error.classList.add('show');return}btn.disabled=true;btn.textContent=configured?'Connexion…':'Création…';try{const result=await api(configured?'/api/auth/login':'/api/auth/setup',{method:'POST',body:JSON.stringify({username,password})});showApp(result.username);await reload()}catch(err){error.textContent=err.message;error.classList.add('show');$('#authPassword').select()}finally{btn.disabled=false;btn.textContent=configured?'Se connecter':'Créer le compte et commencer'}};
+    $('#copyMachineCode').onclick=async()=>{const input=$('#machineCode');try{await navigator.clipboard.writeText(input.value);toast('Code machine copié')}catch{input.select();document.execCommand('copy');toast('Code machine copié')}};
+    $('#licenseForm').onsubmit=async e=>{e.preventDefault();const btn=$('#licenseSubmit'),error=$('#licenseError'),key=$('#productKey').value.trim();error.classList.remove('show');btn.disabled=true;btn.textContent='Activation…';try{const status=await api('/api/license/activate',{method:'POST',body:JSON.stringify({key})});LICENSE=status;toast('Jamel v1 activé pour '+status.customer);await checkAuth()}catch(err){error.textContent=err.message;error.classList.add('show');$('#productKey').select()}finally{btn.disabled=false;btn.textContent='Activer le logiciel'}};
+    $('#logoutBtn').onclick=async()=>{try{await api('/api/auth/logout',{method:'POST'});showAuth(true,AUTH.username)}catch(e){toast(e.message,true)}};
+    $$('.closeModal').forEach(b=>b.onclick=closeModals);$$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals()});
+    setInterval(()=>$('#clock').textContent=new Date().toLocaleString('fr-TN'),1000);$('#clock').textContent=new Date().toLocaleString('fr-TN');try{applyTheme(localStorage.getItem('librairie_anssem_theme')||localStorage.getItem('library_anssem_theme')||localStorage.getItem('maktebet_anssem_theme')||localStorage.getItem('maktabet_ansem_theme')||'#1b805d')}catch{applyTheme('#1b805d')}checkLicense();
+  </script>
+</body>
+</html>
